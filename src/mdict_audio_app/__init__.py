@@ -1,0 +1,2 @@
+"""MDict audio application package."""
+

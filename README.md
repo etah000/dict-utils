@@ -11,6 +11,43 @@ This is an attempt to reveal MDX/MDD file format, so that my favorite dictionari
 created by MDict users, could be used elsewhere.
 
 
+MDict Audio 应用
+================
+
+仓库中的 `mdict_audio_app` 是面向 Windows 的离线 Python 3.12 桌面应用：它把多个
+MDX/MDD 词典导入 SQLite，按生词列表选择词头和例句音频，并通过 FFmpeg 生成音频及
+JSON 清单。音频以内容寻址的 SQLite 分片保存，不会为每个资源创建单独文件。
+
+开发环境
+--------
+
+在 PowerShell 中执行：
+
+```powershell
+python -m pip install -e ".[dev]"
+python -m pytest -q
+python -m mdict_audio_app.main --data-dir data
+```
+
+`data/dictionary.db` 保存目录和词条索引，`data/audio/audio-*.db` 保存音频分片。
+请在打包前提供 `bin/ffmpeg.exe`、`bin/ffprobe.exe` 和 `LICENSES/` 许可证目录，并确保
+FFmpeg 工具也位于开发机的 `PATH`；验证脚本会对缺失项给出明确错误。词典文件通常受
+版权保护，不应提交到仓库。
+
+维护、备份与打包
+----------------
+
+启动自检使用 `python -m mdict_audio_app.main --self-check --data-dir data`。应用启动阶段（在
+UI 导入任务开始前）会恢复遗留导入；维护服务还可删除词典后的孤立音频，并使用 SQLite backup API 生成包含
+`dictionary.db`、全部音频分片和 `integrity.json` 的一致备份。Windows standalone 包可用：
+
+```powershell
+pyside6-deploy -c pysidedeploy.spec
+powershell -ExecutionPolicy Bypass -File scripts/verify_distribution.ps1
+python scripts/benchmark_catalog.py --entries 1000000 --audio-resources 200000
+```
+
+
 MDict Files
 ===========
 MDict stores the dictionary definitions, i.e. (key word, explanation) in MDX file and

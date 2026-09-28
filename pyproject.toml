@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mdict-audio-app"
+version = "0.1.0"
+description = "Audio extraction and playback planning for MDict dictionaries"
+requires-python = ">=3.12,<3.15"
+dependencies = [
+    "PySide6>=6.8,<7",
+    "beautifulsoup4>=4.12,<5",
+]
+
+[project.scripts]
+mdict-audio = "mdict_audio_app.main:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8,<10",
+    "pytest-qt>=4.4,<5",
+]
+
+[tool.setuptools]
+package-dir = {"" = ".", "mdict_audio_app" = "src/mdict_audio_app"}
+py-modules = ["readmdict", "pureSalsa20", "ripemd128"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "."]
