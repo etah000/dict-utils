@@ -1,27 +1,10 @@
-An Analysis of MDX/MDD File Format
-==================================
+# MDict 文件格式与音频工具
 
-    MDict is a multi-platform open dictionary
-    
-which are both questionable. It is not available for every platform, e.g. OS X, Linux.
-Its  dictionary file format is not open. But this has not hindered its popularity,
-and many dictionaries have been created for it.
+本项目包含 MDict 文件读取工具和一个离线桌面应用。读取工具分析并提取 MDX 词条和 MDD 资源；桌面应用可将词典内容导入 SQLite，按生词列表选择词头发音和例句音频，并通过 FFmpeg 生成音频文件及 JSON 清单。
 
-This is an attempt to reveal MDX/MDD file format, so that my favorite dictionaries,
-created by MDict users, could be used elsewhere.
+## 桌面应用
 
-
-MDict Audio 应用
-================
-
-仓库中的 `mdict_audio_app` 是面向 Windows 的离线 Python 3.12 桌面应用：它把多个
-MDX/MDD 词典导入 SQLite，按生词列表选择词头和例句音频，并通过 FFmpeg 生成音频及
-JSON 清单。音频以内容寻址的 SQLite 分片保存，不会为每个资源创建单独文件。
-
-开发环境
---------
-
-在 PowerShell 中执行：
+桌面应用使用 Python 3.11 及以上版本，当前面向 Windows。开发环境可在 PowerShell 中安装并启动：
 
 ```powershell
 python -m pip install -e ".[dev]"
@@ -29,17 +12,17 @@ python -m pytest -q
 python -m mdict_audio_app.main --data-dir data
 ```
 
-`data/dictionary.db` 保存目录和词条索引，`data/audio/audio-*.db` 保存音频分片。
-请在打包前提供 `bin/ffmpeg.exe`、`bin/ffprobe.exe` 和 `LICENSES/` 许可证目录，并确保
-FFmpeg 工具也位于开发机的 `PATH`；验证脚本会对缺失项给出明确错误。词典文件通常受
-版权保护，不应提交到仓库。
+`data/dictionary.db` 保存词典目录和词条索引，`data/audio/audio-*.db` 保存音频分片。应用需要 FFmpeg 和 FFprobe；打包前请提供 `bin/ffmpeg.exe`、`bin/ffprobe.exe` 和 `LICENSES/` 许可证目录，并确保 FFmpeg 工具位于开发机的 `PATH`。分发验证脚本会检查这些文件。
 
-维护、备份与打包
-----------------
+启动自检：
 
-启动自检使用 `python -m mdict_audio_app.main --self-check --data-dir data`。应用启动阶段（在
-UI 导入任务开始前）会恢复遗留导入；维护服务还可删除词典后的孤立音频，并使用 SQLite backup API 生成包含
-`dictionary.db`、全部音频分片和 `integrity.json` 的一致备份。Windows standalone 包可用：
+```powershell
+python -m mdict_audio_app.main --self-check --data-dir data
+```
+
+应用启动时会在开始词典导入前恢复遗留导入。维护服务支持清理词典删除后遗留的孤立音频，并使用 SQLite backup API 创建包含 `dictionary.db`、全部音频分片和 `integrity.json` 的一致备份。
+
+Windows standalone 包可用以下命令构建和检查：
 
 ```powershell
 pyside6-deploy -c pysidedeploy.spec
@@ -47,74 +30,45 @@ powershell -ExecutionPolicy Bypass -File scripts/verify_distribution.ps1
 python scripts/benchmark_catalog.py --entries 1000000 --audio-resources 200000
 ```
 
+词典文件通常受版权保护，请勿提交 `.mdx`、`.mdd` 文件或提取出的词典数据。
 
-MDict Files
-===========
-MDict stores the dictionary definitions, i.e. (key word, explanation) in MDX file and
-the dictionary reference data, e.g. images, pronunciations, stylesheets in MDD file.
-Although holding different contents, these two file formats share the same structure.
+## MDX 和 MDD 文件
 
-MDX File Format
-===============
-<img src="https://rawgit.com/csarron/mdict-analysis/master/MDX.svg">
+MDX 保存词条及释义，MDD 保存词典引用的资源，例如图片、发音和样式表。两种文件使用相近的二进制结构。
 
+### MDX 文件结构
 
-MDD File Format
-===============
-<img src="https://rawgit.com/csarron/mdict-analysis/master/MDD.svg">
+![MDX 文件结构](images/MDX.svg)
 
+### MDD 文件结构
 
-Example Programs
-================
+![MDD 文件结构](images/MDD.svg)
 
-`mdict_utils.readmdict`
-----------------------
-`mdict_utils.readmdict` is an example implementation in Python. It can read and extract MDX/MDD files.
+## 读取和提取词典
 
-.. note:: python-lzo is required to read mdx files created with engine 1.2.
-   Get Windows version from http://www.lfd.uci.edu/~gohlke/pythonlibs/#python-lzo
+安装项目后，可通过模块命令查看参数或提取词典：
 
-It can be used as a command line tool. Suppose one has oald8.mdx and oald8.mdd::
+```powershell
+python -m mdict_utils.readmdict --help
+python -m mdict_utils.readmdict -x path/to/dictionary.mdx
+```
 
-    $ python -m mdict_utils.readmdict -x oald8.mdx
+提取时会生成 `.txt` 词条文件；若同名 MDD 文件存在，还会将资源写入词典旁的 `data` 目录。读取由 MDict 引擎 1.2 创建的文件需要安装与当前 Python 环境兼容的 `python-lzo`。未安装时，程序仍可读取支持的 zlib 压缩块。
 
-This will creates *oald8.txt* dictionary file and creates a folder *data* for images, pronunciation audio files.
+也可以在 Python 中迭代词条：
 
-On Windows, one can also double click it and select the file in the popup dialog.
+```python
+from mdict_utils.readmdict import MDD, MDX
 
-Or as a module::
+mdx = MDX("dictionary.mdx")
+key, definition = next(mdx.items())
 
-    In [1]: from mdict_utils.readmdict import MDX, MDD
+mdd = MDD("dictionary.mdd")
+resource_path, resource_data = next(mdd.items())
+```
 
-Read MDX file and print the first entry::
+MDX 返回的词头和释义是 UTF-8 编码的 `bytes`。MDD 返回的资源路径是 UTF-8 编码的 `bytes`，资源内容保持原始 `bytes`。
 
-    In [2]: mdx = MDX('oald8.mdx')
+## 参考资料
 
-    In [3]: items = mdx.items()
-
-    In [4]: items.next()
-    Out[4]:
-    ('A',
-     '<span style=\'display:block;color:black;\'>.........')
-``mdx`` is an object having all info from a MDX file. ``items`` is an iterator producing 2-item tuples.
-Of each tuple, the first element is the entry text and the second is the explanation. Both are UTF-8 encoded strings.
-
-Read MDD file and print the first entry::
-
-    In [5]: mdd = MDD('oald8.mdd')
-
-    In [6]: items = mdd.items()
-
-    In [7]: items = mdd.next()
-    Out[7]: 
-    (u'\\pic\\accordion_concertina.jpg',
-    '\xff\xd8\xff\xe0\x00\x10JFIF...........')
-
-``mdd`` is an object having all info from a MDD file. ``items`` is an iterator producing 2-item tuples. 
-Of each tuple, the first element is the file name and the second element is the corresponding file content.
-The file name is encoded in UTF-8. The file content is a plain bytes array.
-
-Acknowledge
-===========
-The file format gets fully disclosed by https://github.com/zhansliu/writemdict.
-The encryption part is taken into this project.
+MDX/MDD 文件结构和加密相关实现参考了 [writemdict](https://github.com/zhansliu/writemdict) 项目的公开研究。
