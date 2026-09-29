@@ -116,7 +116,7 @@
           http://www.tiac.net/~sw/2010/02/PureSalsa20
 
     Sample usage:
-        from pureSalsa20 import Salsa20
+        from mdict_utils.pureSalsa20 import Salsa20
         s20 = Salsa20(key, IV)
         dataout = s20.encryptBytes(datain)   # same for decrypt
 

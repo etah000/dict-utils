@@ -6,7 +6,7 @@ ripemd128.py - A simple ripemd128 library in pure Python.
 Supports both Python 2 (versions >= 2.6) and Python 3.
 
 Usage:
-    from ripemd128 import ripemd128
+    from mdict_utils.ripemd128 import ripemd128
     digest = ripemd128(b"The quick brown fox jumps over the lazy dog")
     assert(digest == b"\x3f\xa9\xb5\x7f\x05\x3c\x05\x3f\xbe\x27\x35\xb2\x38\x0d\xb5\x96")
 

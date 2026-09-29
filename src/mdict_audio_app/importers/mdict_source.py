@@ -43,7 +43,7 @@ class MDictSource:
 
     def __init__(self, mdx_path: Path, mdd_path: Path | None = None, *, readmdict_module=None):
         if readmdict_module is None:
-            import readmdict as readmdict_module
+            from mdict_utils import readmdict as readmdict_module
         self.mdx_path = Path(mdx_path)
         self.mdd_path = Path(mdd_path) if mdd_path is not None else None
         self._module = readmdict_module

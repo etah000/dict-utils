@@ -67,16 +67,16 @@ MDD File Format
 Example Programs
 ================
 
-readmdict.py
-------------
-readmdict.py is an example implementation in Python. This program can read/extract mdx/mdd files.
+`mdict_utils.readmdict`
+----------------------
+`mdict_utils.readmdict` is an example implementation in Python. It can read and extract MDX/MDD files.
 
 .. note:: python-lzo is required to read mdx files created with engine 1.2.
    Get Windows version from http://www.lfd.uci.edu/~gohlke/pythonlibs/#python-lzo
 
 It can be used as a command line tool. Suppose one has oald8.mdx and oald8.mdd::
 
-    $ python readmdict.py -x oald8.mdx
+    $ python -m mdict_utils.readmdict -x oald8.mdx
 
 This will creates *oald8.txt* dictionary file and creates a folder *data* for images, pronunciation audio files.
 
@@ -84,7 +84,7 @@ On Windows, one can also double click it and select the file in the popup dialog
 
 Or as a module::
 
-    In [1]: from readmdict import MDX, MDD
+    In [1]: from mdict_utils.readmdict import MDX, MDD
 
 Read MDX file and print the first entry::
 

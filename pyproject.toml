@@ -14,6 +14,7 @@ dependencies = [
 
 [project.scripts]
 mdict-audio = "mdict_audio_app.main:main"
+mdict-extract = "mdict_utils.readmdict:main"
 
 [project.optional-dependencies]
 dev = [
@@ -22,8 +23,7 @@ dev = [
 ]
 
 [tool.setuptools]
-package-dir = {"" = ".", "mdict_audio_app" = "src/mdict_audio_app"}
-py-modules = ["readmdict", "pureSalsa20", "ripemd128"]
+package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
