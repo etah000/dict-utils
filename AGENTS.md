@@ -10,8 +10,8 @@
 
 - `src/mdict_utils/readmdict.py`：MDX/MDD 读取器及命令行入口。
 - `src/mdict_utils/pureSalsa20.py`、`src/mdict_utils/ripemd128.py`：读取加密词典所需的密码学实现。
-- `MDX.svg`、`MDD.svg`：说明两种二进制格式的结构。
-- `README.md`：记录格式背景、依赖和使用示例。
+- `images/MDX.svg`、`images/MDD.svg`：说明两种二进制格式的结构。
+- `README.md`：项目简介及文档入口；`docs/user-guide.md` 记录使用步骤，`docs/dev-ref.md` 记录开发和格式参考。
 
 新增运行时代码放入对应的 `src/` 包，命令行和维护脚本放入 `scripts/`。不要提交提取后的词典数据、受版权保护的 `.mdx`/`.mdd` 文件或临时输出。
 
