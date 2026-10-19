@@ -27,6 +27,6 @@ python -m mdict_utils.readmdict --help
 python -m mdict_utils.readmdict -x path/to/dictionary.mdx
 ```
 
-若存在同名 MDD 文件，资源会写入词典旁的 `data` 目录。读取 MDict 引擎 1.2 的 LZO 压缩文件需另装 `python-lzo`。
+若存在同名 MDD 文件，资源会写入词典旁的 `data` 目录。`python -m pip install .` 会安装读取 MDict 引擎 1.2 的 LZO 压缩文件所需的 `python-lzo`。该依赖在 Windows 上提供 Python 3.11 的预编译安装包；其他受支持的 Python 版本可能需要本机编译环境。
 
 仅导入和提取有权使用的词典。
